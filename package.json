@@ -9,8 +9,14 @@
     "dev": "nodemon --exec ts-node src/index.ts",
     "watch": "tsc --watch",
     "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
     "lint": "eslint src/**/*.ts",
-    "lint:fix": "eslint src/**/*.ts --fix"
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "security:audit": "npm audit",
+    "security:fix": "npm audit fix",
+    "prestart": "npm run build",
+    "validate": "npm run lint && npm run test"
   },
   "keywords": [
     "fastify",

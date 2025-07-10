@@ -48,10 +48,34 @@ async function buildApp(): Promise<FastifyInstance> {
       credentials: true,
     });
 
-    // Register rate limiting
+    // Register rate limiting with stricter limits for production
     await fastify.register(import('@fastify/rate-limit'), {
       max: config.rateLimitMax,
       timeWindow: config.rateLimitWindow,
+      skipOnError: false,
+      ban: process.env.NODE_ENV === 'production' ? 10 : undefined, // Ban after 10 violations in production
+      keyGenerator: (request) => {
+        // Use IP address for rate limiting
+        const forwarded = request.headers['x-forwarded-for'] as string;
+        const realIP = request.headers['x-real-ip'] as string;
+        
+        if (forwarded) {
+          return forwarded.split(',')[0].trim();
+        }
+        
+        if (realIP) {
+          return realIP;
+        }
+        
+        return request.socket.remoteAddress || 'unknown';
+      },
+      errorResponseBuilder: (request, context) => {
+        return {
+          error: 'Rate limit exceeded',
+          message: `Too many requests. Limit: ${context.max} per ${Math.round(context.ttl / 1000)} seconds`,
+          retryAfter: Math.round(context.ttl / 1000)
+        };
+      }
     });
 
     // Register Swagger
