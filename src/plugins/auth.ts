@@ -7,7 +7,7 @@ interface AuthPluginOptions {
 }
 
 // Define routes that don't require authentication
-const publicRoutes = ['/api/health', '/docs', '/documentation'];
+const publicRoutes = ['/', '/api/health', '/docs', '/documentation'];
 
 // Default allowed IPs (can be overridden via environment or options)
 const DEFAULT_ALLOWED_IPS = [

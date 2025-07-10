@@ -119,6 +119,51 @@ async function buildApp(): Promise<FastifyInstance> {
     // Register authentication plugin
     await fastify.register(authPlugin);
 
+    // Root endpoint - API information (no authentication required)
+    fastify.get('/', {
+      schema: {
+        tags: ['Info'],
+        description: 'API information and available endpoints',
+        response: {
+          200: {
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+              version: { type: 'string' },
+              description: { type: 'string' },
+              endpoints: {
+                type: 'object',
+                properties: {
+                  health: { type: 'string' },
+                  users: { type: 'string' },
+                  receipts: { type: 'string' },
+                  documentation: { type: 'string' }
+                }
+              },
+              documentation: { type: 'string' },
+              status: { type: 'string' },
+              authentication: { type: 'string' }
+            }
+          }
+        }
+      }
+    }, async () => {
+      return {
+        name: 'Driversnote Assessment API',
+        version: '1.0.0',
+        description: 'A secure API service for managing users and receipts with MongoDB storage',
+        endpoints: {
+          health: '/api/health',
+          users: '/api/users',
+          receipts: '/api/receipts',
+          documentation: '/docs'
+        },
+        documentation: '/docs',
+        status: 'running',
+        authentication: 'API Key required (X-API-Key header) for all endpoints except /api/health and this root endpoint'
+      };
+    });
+
     // Health check endpoint (no authentication required)
     fastify.get('/api/health', {
       schema: {
