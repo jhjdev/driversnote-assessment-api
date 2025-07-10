@@ -3,13 +3,13 @@ services:
     name: driversnote-assessment-api
     env: node
     plan: free
-    buildCommand: npm install && npm run build
-    startCommand: npm start
+    buildCommand: npm ci && npm run build
+    startCommand: node dist/index.js
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
-        value: 4000
+        value: 10000
       - key: HOST
         value: 0.0.0.0
       - key: MONGODB_URI
@@ -21,6 +21,10 @@ services:
       - key: CORS_ORIGIN
         value: "*"
       - key: RATE_LIMIT_MAX
-        value: 100
+        value: 50
       - key: RATE_LIMIT_WINDOW
         value: 900000
+      - key: ENABLE_IP_WHITELIST
+        value: false
+      - key: ALLOWED_IPS
+        value: "127.0.0.1,::1"
