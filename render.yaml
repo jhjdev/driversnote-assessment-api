@@ -3,7 +3,7 @@ services:
     name: driversnote-assessment-api
     env: node
     plan: free
-    buildCommand: npm ci && npm run build
+    buildCommand: npm ci && npx tsc -p tsconfig.build.json
     startCommand: node dist/index.js
     envVars:
       - key: NODE_ENV
