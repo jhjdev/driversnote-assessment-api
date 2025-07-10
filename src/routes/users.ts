@@ -8,6 +8,7 @@ import {
   userSchema,
   createUserSchema
 } from '../types';
+import { RouteSchema } from '../types/swagger';
 
 const usersRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
   // Get all users
@@ -23,7 +24,7 @@ const usersRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
           items: userSchema
         }
       }
-    }
+    } satisfies RouteSchema
   }, async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
     try {
       const db = getDatabase();
@@ -63,7 +64,7 @@ const usersRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
           }
         }
       }
-    }
+    } satisfies RouteSchema
   }, async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
     try {
       const userIdParam = (request.params as { id: string }).id;

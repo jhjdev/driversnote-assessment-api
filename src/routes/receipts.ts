@@ -6,6 +6,7 @@ import {
   receiptSchema,
   createReceiptSchema
 } from '../types';
+import { RouteSchema } from '../types/swagger';
 
 const receiptsRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
   // Get all receipts
@@ -21,7 +22,7 @@ const receiptsRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
           items: receiptSchema
         }
       }
-    }
+    } satisfies RouteSchema
   }, async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
     try {
       const db = getDatabase();
@@ -53,7 +54,7 @@ const receiptsRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
       response: {
         201: receiptSchema
       }
-    }
+    } satisfies RouteSchema
   }, async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
     try {
       const receiptData = request.body as CreateReceiptRequest;
@@ -100,7 +101,7 @@ const receiptsRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
           }
         }
       }
-    }
+    } satisfies RouteSchema
   }, async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
     try {
       const receiptId = (request.params as { id: string }).id;

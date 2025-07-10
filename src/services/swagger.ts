@@ -1,6 +1,5 @@
 import { FastifyInstance } from 'fastify';
 import { SwaggerOptions } from '@fastify/swagger';
-import { SwaggerUiOptions } from '@fastify/swagger-ui';
 
 export interface SwaggerConfig {
   title: string;
@@ -49,7 +48,8 @@ export async function registerSwagger(
       },
     };
 
-    await fastify.register(import('@fastify/swagger'), swaggerOptions);
+    const swagger = await import('@fastify/swagger');
+    await fastify.register(swagger.default, swaggerOptions);
   } catch (error) {
     console.error('Failed to register Swagger:', error);
     throw error;
@@ -61,21 +61,23 @@ export async function registerSwaggerUI(
   routePrefix: string = '/docs'
 ): Promise<void> {
   try {
-    const swaggerUiOptions: SwaggerUiOptions = {
+    const swaggerUiOptions = {
       routePrefix,
       uiConfig: {
-        docExpansion: 'list',
+        docExpansion: 'list' as const,
         deepLinking: false,
       },
       staticCSP: true,
-      transformStaticCSP: (header) => header,
-      transformSpecification: (swaggerObject) => {
+      transformStaticCSP: (header: string) => header,
+      transformSpecification: (swaggerObject: object) => {
         return swaggerObject;
       },
       transformSpecificationClone: true,
     };
 
-    await fastify.register(import('@fastify/swagger-ui'), swaggerUiOptions);
+    // Use dynamic import correctly
+    const swaggerUi = await import('@fastify/swagger-ui');
+    await fastify.register(swaggerUi.default, swaggerUiOptions);
   } catch (error) {
     console.error('Failed to register Swagger UI:', error);
     throw error;

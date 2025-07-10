@@ -45,7 +45,7 @@ describe('Users Routes', () => {
       expect(response.statusCode).toBe(200);
       const payload = JSON.parse(response.payload);
       expect(Array.isArray(payload)).toBe(true);
-      expect(payload.length).toBe(0);
+      expect(payload).toHaveLength(0);
     });
   });
 
