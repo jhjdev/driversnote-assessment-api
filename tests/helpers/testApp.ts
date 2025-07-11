@@ -5,6 +5,11 @@ import usersRoutes from '../../src/routes/users';
 import receiptsRoutes from '../../src/routes/receipts';
 
 export async function buildTestApp(): Promise<FastifyInstance> {
+  // Set test API key if not already set
+  if (!process.env.API_KEY) {
+    process.env.API_KEY = 'test-api-key-12345';
+  }
+  
   const fastify = Fastify({
     logger: false, // Disable logging in tests
   });

@@ -15,9 +15,13 @@ describe('Authentication Plugin', () => {
   describe('API Key Authentication', () => {
     it('should allow access with valid API key', async () => {
       const response = await app.inject({
-        method: 'GET',
+        method: 'POST',
         url: '/api/users',
         headers: getAuthHeaders(),
+        payload: {
+          full_name: 'Test User',
+          tag: 'test',
+        },
       });
 
       expect(response.statusCode).not.toBe(401);
@@ -25,8 +29,12 @@ describe('Authentication Plugin', () => {
 
     it('should reject requests without API key', async () => {
       const response = await app.inject({
-        method: 'GET',
+        method: 'POST',
         url: '/api/users',
+        payload: {
+          full_name: 'Test User',
+          tag: 'test',
+        },
       });
 
       expect(response.statusCode).toBe(401);
@@ -36,10 +44,14 @@ describe('Authentication Plugin', () => {
 
     it('should reject requests with invalid API key', async () => {
       const response = await app.inject({
-        method: 'GET',
+        method: 'POST',
         url: '/api/users',
         headers: {
           'X-API-Key': 'invalid-key',
+        },
+        payload: {
+          full_name: 'Test User',
+          tag: 'test',
         },
       });
 

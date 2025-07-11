@@ -10,12 +10,46 @@ import {
 } from '../types';
 import { RouteSchema } from '../types/swagger';
 
+// Authentication function
+async function authenticateRequest(request: FastifyRequest, reply: FastifyReply): Promise<boolean> {
+  const apiKey = request.headers['x-api-key'] as string;
+  
+  if (!apiKey) {
+    reply.code(401).send({
+      error: 'API key is required',
+      message: 'Please provide a valid API key in the X-API-Key header'
+    });
+    return false;
+  }
+
+  const expectedApiKey = process.env['API_KEY'];
+  
+  if (!expectedApiKey) {
+    reply.code(500).send({
+      error: 'Server configuration error',
+      message: 'API key not configured on server'
+    });
+    return false;
+  }
+
+  if (apiKey !== expectedApiKey) {
+    reply.code(401).send({
+      error: 'Invalid API key',
+      message: 'The provided API key is invalid'
+    });
+    return false;
+  }
+
+  return true;
+}
+
 const usersRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
-  // PUBLIC: Get all users (no authentication required)
+  // Get all users (requires authentication)
   fastify.get('/users', {
     schema: {
       tags: ['Users'],
-      description: 'Get all users (public access)',
+      description: 'Get all users',
+      security: [{ apiKey: [] }],
       response: {
         200: {
           type: 'array',
@@ -24,10 +58,16 @@ const usersRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
       }
     } satisfies RouteSchema
   }, async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
+    // Check authentication
+    const isAuthenticated = await authenticateRequest(request, reply);
+    if (!isAuthenticated) {
+      return; // Response already sent by authenticateRequest
+    }
+
     try {
       const db = getDatabase();
       const users = await db.collection<User>('users').find({}).toArray();
-      console.log(`📋 Fetched ${users.length} users from MongoDB (public)`);
+      console.log(`📋 Fetched ${users.length} users from MongoDB`);
       reply.send(users);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -38,11 +78,12 @@ const usersRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
     }
   });
 
-  // PUBLIC: Get user by ID (no authentication required)
+  // Get user by ID (requires authentication)
   fastify.get('/users/:id', {
     schema: {
       tags: ['Users'],
-      description: 'Get user by ID (public access)',
+      description: 'Get user by ID',
+      security: [{ apiKey: [] }],
       params: {
         type: 'object',
         properties: {
@@ -62,6 +103,12 @@ const usersRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
       }
     } satisfies RouteSchema
   }, async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
+    // Check authentication
+    const isAuthenticated = await authenticateRequest(request, reply);
+    if (!isAuthenticated) {
+      return; // Response already sent by authenticateRequest
+    }
+
     try {
       const userIdParam = (request.params as { id: string }).id;
       const userId = parseInt(userIdParam);
@@ -85,7 +132,7 @@ const usersRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
         return;
       }
 
-      console.log(`👤 Fetched user: ${user.full_name} (public)`);
+      console.log(`👤 Fetched user: ${user.full_name}`);
       reply.send(user);
     } catch (error) {
       console.error('Error fetching user:', error);
@@ -96,10 +143,8 @@ const usersRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
     }
   });
 
-
   // Create new user
   fastify.post('/users', {
-    preHandler: fastify.authenticate,
     schema: {
       tags: ['Users'],
       description: 'Create a new user',
@@ -110,6 +155,12 @@ const usersRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
       }
     }
   }, async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
+    // Check authentication
+    const isAuthenticated = await authenticateRequest(request, reply);
+    if (!isAuthenticated) {
+      return; // Response already sent by authenticateRequest
+    }
+
     try {
       const userData = request.body as CreateUserRequest;
       const db = getDatabase();
@@ -139,7 +190,6 @@ const usersRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 
   // Update user
   fastify.put('/users/:id', {
-    preHandler: fastify.authenticate,
     schema: {
       tags: ['Users'],
       description: 'Update user by ID',
@@ -177,6 +227,12 @@ const usersRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
       }
     }
   }, async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
+    // Check authentication
+    const isAuthenticated = await authenticateRequest(request, reply);
+    if (!isAuthenticated) {
+      return; // Response already sent by authenticateRequest
+    }
+
     try {
       const userIdParam = (request.params as { id: string }).id;
       const userId = parseInt(userIdParam);
@@ -221,7 +277,6 @@ const usersRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 
   // Delete user
   fastify.delete('/users/:id', {
-    preHandler: fastify.authenticate,
     schema: {
       tags: ['Users'],
       description: 'Delete user by ID',
@@ -243,6 +298,12 @@ const usersRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
       }
     }
   }, async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
+    // Check authentication
+    const isAuthenticated = await authenticateRequest(request, reply);
+    if (!isAuthenticated) {
+      return; // Response already sent by authenticateRequest
+    }
+
     try {
       const userIdParam = (request.params as { id: string }).id;
       const userId = parseInt(userIdParam);
@@ -281,7 +342,6 @@ const usersRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
 
   // Initialize users
   fastify.post('/users/initialize', {
-    preHandler: fastify.authenticate,
     schema: {
       tags: ['Users'],
       description: 'Initialize users collection',
@@ -307,6 +367,12 @@ const usersRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
       }
     }
   }, async (request: FastifyRequest, reply: FastifyReply): Promise<void> => {
+    // Check authentication
+    const isAuthenticated = await authenticateRequest(request, reply);
+    if (!isAuthenticated) {
+      return; // Response already sent by authenticateRequest
+    }
+
     try {
       const { users } = request.body as InitializeUsersRequest;
       const db = getDatabase();

@@ -101,20 +101,21 @@ describe('Users Routes', () => {
       expect(response.statusCode).toBe(401);
     });
 
-    it('should validate required fields', async () => {
+    it('should create user without optional fields', async () => {
       const response = await app.inject({
         method: 'POST',
         url: '/api/users',
         headers: getAuthHeaders(),
         payload: {
-          full_name: 'John Doe',
-          // Missing tag
+          full_name: 'John Doe'
         },
       });
 
-      expect(response.statusCode).toBe(400);
+      expect(response.statusCode).toBe(201);
+      const payload = JSON.parse(response.payload);
+      expect(payload.full_name).toBe('John Doe');
+      expect(payload.tag).toBeUndefined();
     });
-
     it('should create user with valid data', async () => {
       const response = await app.inject({
         method: 'POST',

@@ -119,5 +119,6 @@ const authPlugin: FastifyPluginAsync<AuthPluginOptions> = async (
 };
 
 export default fp(authPlugin, {
-  name: 'auth-plugin'
+  name: 'auth-plugin',
+  fastify: '>=4.0.0'
 });
