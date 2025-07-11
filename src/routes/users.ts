@@ -11,13 +11,11 @@ import {
 import { RouteSchema } from '../types/swagger';
 
 const usersRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
-  // Get all users
+  // PUBLIC: Get all users (no authentication required)
   fastify.get('/users', {
-    preHandler: fastify.authenticate,
     schema: {
       tags: ['Users'],
-      description: 'Get all users',
-      security: [{ apiKey: [] }],
+      description: 'Get all users (public access)',
       response: {
         200: {
           type: 'array',
@@ -29,7 +27,7 @@ const usersRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
     try {
       const db = getDatabase();
       const users = await db.collection<User>('users').find({}).toArray();
-      console.log(`📋 Fetched ${users.length} users from MongoDB`);
+      console.log(`📋 Fetched ${users.length} users from MongoDB (public)`);
       reply.send(users);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -40,13 +38,11 @@ const usersRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
     }
   });
 
-  // Get user by ID
+  // PUBLIC: Get user by ID (no authentication required)
   fastify.get('/users/:id', {
-    preHandler: fastify.authenticate,
     schema: {
       tags: ['Users'],
-      description: 'Get user by ID',
-      security: [{ apiKey: [] }],
+      description: 'Get user by ID (public access)',
       params: {
         type: 'object',
         properties: {
@@ -89,7 +85,7 @@ const usersRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
         return;
       }
 
-      console.log(`👤 Fetched user: ${user.full_name}`);
+      console.log(`👤 Fetched user: ${user.full_name} (public)`);
       reply.send(user);
     } catch (error) {
       console.error('Error fetching user:', error);
@@ -99,6 +95,7 @@ const usersRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
       });
     }
   });
+
 
   // Create new user
   fastify.post('/users', {
@@ -158,7 +155,14 @@ const usersRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) => {
         type: 'object',
         properties: {
           full_name: { type: 'string' },
-          tag: { type: 'string' }
+          tag: { type: 'string' },
+          address1: { type: 'string', nullable: true },
+          address2: { type: 'string', nullable: true },
+          postal_code: { type: ['number', 'string'], nullable: true },
+          city: { type: 'string', nullable: true },
+          country_name: { type: 'string' },
+          country_id: { type: 'string' },
+          organisation_id: { type: 'number', nullable: true }
         }
       },
       response: {
