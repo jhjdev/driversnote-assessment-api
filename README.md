@@ -311,6 +311,22 @@ All endpoints may return these error responses:
 }
 ```
 
+## 🚨 CRITICAL SECURITY WARNING
+
+**⚠️ NEVER COMMIT SECRETS TO VERSION CONTROL**
+
+- **DO NOT** put real credentials in `.env` files that are committed to git
+- **ALWAYS** use placeholder values in documentation examples
+- **ROTATE** any credentials that may have been accidentally exposed
+- **USE** environment variables for all sensitive configuration
+- **REVIEW** all commits before pushing to ensure no secrets are included
+
+If you accidentally commit secrets:
+1. Immediately rotate/revoke the exposed credentials
+2. Remove secrets from git history using `git filter-branch` or similar
+3. Force push the cleaned history
+4. Verify no secrets remain in the repository
+
 ## 🔒 Security
 
 This API implements enterprise-grade security features to protect against unauthorized access and reduce operational costs.
@@ -407,17 +423,17 @@ ALLOWED_IPS=127.0.0.1,::1
 NODE_ENV=production
 PORT=4000
 HOST=0.0.0.0
-API_KEY=super-secure-production-key-with-32-chars
+API_KEY=your-32-char-production-api-key-here
 
-MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/?retryWrites=true&w=majority
-MONGODB_DB_NAME=driversnote_prod
+MONGODB_URI=mongodb+srv://username:password@your-cluster.mongodb.net/?retryWrites=true&w=majority
+MONGODB_DB_NAME=your_production_database
 
 CORS_ORIGIN=https://your-frontend-domain.com
 RATE_LIMIT_MAX=50
 RATE_LIMIT_WINDOW=900000
 
 ENABLE_IP_WHITELIST=true
-ALLOWED_IPS=203.0.113.10,198.51.100.0/24
+ALLOWED_IPS=your.production.ip,your.office.ip.range/24
 ```
 
 ## 🛠️ Development
