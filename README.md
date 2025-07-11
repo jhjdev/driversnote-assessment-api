@@ -425,7 +425,7 @@ PORT=4000
 HOST=0.0.0.0
 API_KEY=your-32-char-production-api-key-here
 
-MONGODB_URI=mongodb+srv://username:password@your-cluster.mongodb.net/?retryWrites=true&w=majority
+MONGODB_URI=your-mongodb-connection-string
 MONGODB_DB_NAME=your_production_database
 
 CORS_ORIGIN=https://your-frontend-domain.com
